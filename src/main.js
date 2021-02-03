@@ -2,6 +2,8 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+// 初始化样式
+import '../src/assets/style/index.css'
 
 Vue.config.productionTip = false
 

@@ -1,23 +1,29 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
+
+// 一级路由区域
+const Home = () => import(/*webpackChunkName: "home-home"*/'../pages/home/Home');
+
+// 二级路由
+const Rank = () => import(/*webpackChunkName: "home-rank"*/'../pages/rank/Rank');
+const Recommend = () => import(/*webpackChunkName: "home-recommend"*/'../pages/recommend/Recommend');
+const Search = () => import(/*webpackChunkName: "home-search"*/'../pages/search/Search');
+const Singer = () => import(/*webpackChunkName: "home-rank"*/'../pages/singer/Singer');
 
 Vue.use(VueRouter)
 
 const routes = [
+  { path: '/', redirect: '/home' },
   {
-    path: '/',
-    name: 'Home',
-    component: Home
+    path: '/home', component: Home, children: [
+      { path: '/home', redirect: '/recommend'},
+      { path: '/rank', component: Rank },
+      { path: '/recommend', component: Recommend },
+      { path: '/search', component: Search },
+      { path: '/singer', component: Singer },
+    ]
   },
-  {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
-  }
+
 ]
 
 const router = new VueRouter({
