@@ -1,11 +1,13 @@
 <template >
-    <div class="home">
-        <!-- 头部 -->
-        <MHeader />
-        <!-- tab选择栏 -->
-        <TabBar />
-        <router-view></router-view>
-    </div>
+  <div class="home">
+    <!-- 头部 -->
+    <MHeader />
+    <!-- tab选择栏 -->
+      <TabBar />
+      <keep-alive>
+      <router-view></router-view>
+      </keep-alive>
+  </div>
 </template>
 
 <script>
@@ -14,19 +16,18 @@ import MHeader from "components/common/m-header/m-header";
 import TabBar from "components/tabbar/TabBar";
 
 export default {
-    name: "",
-    data(){
-        return{}
-    },
-    components:{
-        MHeader,
-        TabBar
-    },
-    methods:{}
-}
+  name: "",
+  data() {
+    return {};
+  },
+  components: {
+    MHeader,
+    TabBar,
+  },
+  methods: {},
+};
 </script>
 
 <style lang="scss" scoped>
-    @import "~@/assets/style/mixin.scss";
-
+@import "~@/assets/style/mixin.scss";
 </style>

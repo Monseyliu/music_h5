@@ -1,15 +1,17 @@
 <template >
   <div class="recommend">
     <div class="recommend-content">
-        <!-- 轮播 -->
-      <div class="slider-wrapper">
-          <MSllider >
-              <div v-for="item in slider" :key="item.id">
-                  <a :href="item.linkUrl">
-                      <img :src="item.picUrl" alt="">
-                  </a>
-              </div>
+      <!-- 轮播 -->
+      <div class="slider-wrapper" v-if="slider.length">
+        <div class="slider-content">
+          <MSllider>
+            <div v-for="item in slider" :key="item.id">
+              <a :href="item.linkUrl">
+                <img :src="item.picUrl" alt="" />
+              </a>
+            </div>
           </MSllider>
+        </div>
       </div>
       <!-- 推荐列表 -->
       <div class="recommend-list">
@@ -21,7 +23,7 @@
 </template>
 
 <script>
-import MSllider from "components/base/slider"
+import MSllider from "components/base/slider";
 // 获取推荐数据的方法 状态码
 import { getRecommend } from "api/recommend.js";
 import { ERR_OK } from "api/config.js";
@@ -33,8 +35,8 @@ export default {
       slider: [],
     };
   },
-  components:{
-      MSllider
+  components: {
+    MSllider,
   },
   created() {
     this._getRecommend();
@@ -65,9 +67,16 @@ export default {
     .slider-wrapper {
       position: relative;
       @include wh(100%, 0);
-      //padding-top: 40%;
-      //overflow: hidden;
+      padding-top: 40%;
+      overflow: hidden;
+      .slider-content{
+        position: absolute;
+        top: 0;
+        left: 0;
+        @include wh(100%,100%);
+      }
     }
+
     .recommend-list {
       .list-title {
         height: 1.3rem;
