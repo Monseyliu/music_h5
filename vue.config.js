@@ -10,7 +10,8 @@ module.exports = {
   devServer: {
 
     before(app) {
-
+      // 跨域解决
+      // 轮播图
       app.get('/api/getTopBanner', function (req, res) {
         const url = 'https://u.y.qq.com/cgi-bin/musicu.fcg'
         const jumpPrefixMap = {
@@ -51,6 +52,21 @@ module.exports = {
             res.json(response)
           }
         }).catch((e) => {
+          console.log(e)
+        })
+      })
+      // 歌单列表
+      app.get('/api/getDiscList', function (req, res) {
+        const url = 'https://c.y.qq.com/splcloud/fcgi-bin/fcg_get_diss_by_tag.fcg'
+        axios.get(url, {
+          headers: {
+            referer: 'https://c.y.qq.com/',
+            host: 'c.y.qq.com'
+          },
+          params: req.query
+        }).then(response => {
+          res.json(response.data)
+        }).catch(e => {
           console.log(e)
         })
       })
