@@ -41,10 +41,15 @@ $headHeight: .86rem;
     outline: none;
     border: none;
 }
-// 宽高
+// 宽高 
 @mixin wh($width,$height){
     width: $width;
     height: $height;
+}
+// 颜色字号
+@mixin sizeColor($size, $color) {
+    font-size: $size;
+    color: $color;
 }
 // flex
 // 纵向排列居中

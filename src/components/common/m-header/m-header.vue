@@ -27,8 +27,8 @@ export default {
         display: inline-block;
         @include bg-image('logo');
         vertical-align: top;
-        margin-top: .12rem;
-        @include wh(.62rem, .62rem);
+        margin-top: .16rem;
+        @include wh(.6rem, .6rem);
         background-size: cover;
     }
     .text{

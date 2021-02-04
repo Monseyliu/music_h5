@@ -10,8 +10,8 @@
 
 <script>
 // 引入 头部 Tab 组件
-import MHeader from "@/components/common/m-header/m-header";
-import TabBar from "@/components/tabbar/TabBar";
+import MHeader from "components/common/m-header/m-header";
+import TabBar from "components/tabbar/TabBar";
 
 export default {
     name: "",
