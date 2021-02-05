@@ -1,5 +1,5 @@
 // 封装jsonpPromise请求
-import originJSONP from 'jasonp'
+import originJSONP from 'jsonp'
 
 export default function jsonp(url, data, option) {
    

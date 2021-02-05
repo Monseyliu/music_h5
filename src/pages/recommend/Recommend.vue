@@ -34,7 +34,7 @@
       </div>
       <!-- loading -->
       <div class="loading-container" v-show="!discList.length">
-        <Loading />
+        <MLoading />
       </div>
     </Scroll>
   </div>
@@ -44,7 +44,7 @@
 // 引入 轮播 滚动 loading 组件
 import MSllider from "components/base/slider";
 import Scroll from "components/base/scroll";
-import Loading from "components/base/loading/loading"
+import MLoading from "components/base/loading/loading"
 // 获取推荐数据的方法 状态码
 import { getRecommend, getDiscList } from "api/recommend.js";
 import { ERR_OK } from "api/config.js";
@@ -60,7 +60,7 @@ export default {
   components: {
     MSllider,
     Scroll,
-    Loading
+    MLoading
   },
   created() {
     this._getRecommend();
@@ -155,7 +155,7 @@ export default {
       }
     }
     // loading
-    .container{
+    .loading-container{
       position: absolute;
       width: 100%;
       top: 50%;

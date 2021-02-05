@@ -1,6 +1,6 @@
 <template >
   <div class="scroll" ref="wrapper">
-    <!-- 自定义滚动组件-复用 -->
+    <!-- 自定义滚动组件-复用 基于"better-scroll": "^1.15.1",-->
     <slot></slot>
   </div>
 </template>
@@ -23,6 +23,10 @@ export default {
       type: Array,
       default: null,
     },
+    listenScroll: {
+      type: Boolean, //是否要监听滚动事件
+      default: false
+    }
   },
   mounted() {
     setTimeout(() => {
@@ -47,6 +51,13 @@ export default {
         probeType: this.probeType,
         click: this.click,
       });
+      // 监听滚动事件
+      if(this.listenScroll) {
+        let me = this;
+        this.scroll.on('scroll', (pos) => {
+          me.$emit('scroll', pos)
+        })
+      }
     },
     //   代理 BScroll 的方法
     enable() {
@@ -58,6 +69,12 @@ export default {
     refresh() {
       this.scroll && this.scroll.refresh();
     },
+    scrollTo() {
+      this.scroll && this.scroll.scrollTo.apply(this.scroll, arguments);
+    },
+    scrollToElement() {
+      this.scroll && this.scroll.scrollToElement.apply(this.scroll, arguments);
+    }
   },
 };
 </script>

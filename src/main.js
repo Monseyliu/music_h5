@@ -9,7 +9,7 @@ import VueLazyLoad from 'vue-lazyload'
 
 Vue.config.productionTip = false
 Vue.use(VueLazyLoad, {
-  //loading: require('components/common/m-header/logo.png'),
+  loading: require('components/common/m-header/logo@2x.png'),
 })
 
 new Vue({

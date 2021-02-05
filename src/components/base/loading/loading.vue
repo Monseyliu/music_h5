@@ -8,7 +8,7 @@
 
 <script>
 export default {
-    name: "Loading",
+    name: "MLoading",
     props: {
         title: {
             type: String,
