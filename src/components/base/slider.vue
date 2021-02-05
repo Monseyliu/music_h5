@@ -56,6 +56,7 @@ export default {
       }
     }, 20);
 
+    // 监听窗口变化引起的宽度计算bug
     window.addEventListener("resize", () => {
       if (!this.slider || !this.slider.enabled) {
         return;

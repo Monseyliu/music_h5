@@ -21,7 +21,7 @@
             <li class="item" v-for="item in discList" :key="item.dissid">
               <!-- 图标 -->
               <div class="icon">
-                <img :src="item.imgurl" width="60" height="60" alt="" />
+                <img v-lazy="item.imgurl" width="60" height="60" alt="" />
               </div>
               <!-- 描述 -->
               <div class="text">
@@ -32,14 +32,19 @@
           </ul>
         </div>
       </div>
+      <!-- loading -->
+      <div class="loading-container" v-show="!discList.length">
+        <Loading />
+      </div>
     </Scroll>
   </div>
 </template>
 
 <script>
-// 引入 轮播 滚动 组件
+// 引入 轮播 滚动 loading 组件
 import MSllider from "components/base/slider";
 import Scroll from "components/base/scroll";
+import Loading from "components/base/loading/loading"
 // 获取推荐数据的方法 状态码
 import { getRecommend, getDiscList } from "api/recommend.js";
 import { ERR_OK } from "api/config.js";
@@ -55,6 +60,7 @@ export default {
   components: {
     MSllider,
     Scroll,
+    Loading
   },
   created() {
     this._getRecommend();
@@ -147,6 +153,13 @@ export default {
           }
         }
       }
+    }
+    // loading
+    .container{
+      position: absolute;
+      width: 100%;
+      top: 50%;
+      transform: translateY(-50%);
     }
   }
 }
