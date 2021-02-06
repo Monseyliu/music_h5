@@ -79,3 +79,13 @@ $headHeight: .86rem;
     bottom: -10px;
     }
 }
+
+// fixed 定位全屏
+@mixin fixed-full-screen{
+    position: fixed;
+    z-index: 100;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}

@@ -1,10 +1,10 @@
 <template >
   <div class="singer">
-      <!-- 歌手列表 -->
-      <ListView :data="singers" />
+    <!-- 歌手列表 -->
+    <ListView :data="singers" @select="selectSinger" />
+    <!-- 歌手页面详情子路由 -->
+    <router-view></router-view>
   </div>
-  
-  
 </template>
 
 <script>
@@ -13,7 +13,9 @@ import { getSingerList } from "api/singer";
 import { ERR_OK } from "api/config";
 import Singer from "config/js/singer";
 // 组件
-import ListView from "components/base/listView/listView"
+import ListView from "components/base/listView/listView";
+// vuex 引入
+import { mapMutations } from "vuex";
 
 //热门歌曲
 const HOT_NAME = "热门";
@@ -26,19 +28,21 @@ export default {
       singers: [], //歌手列表
     };
   },
-  components:{
-      ListView
+  components: {
+    ListView,
   },
   created() {
     this._getSingerList();
   },
   methods: {
+      ...mapMutations({
+          setSinger: 'SET_SINGER'
+      }),
     _getSingerList() {
       // 获取歌手数据
       getSingerList().then((res) => {
         if (res.code === ERR_OK) {
           this.singers = this._normalizeSinger(res.data.list);
-          console.log(this.singers)
         }
       });
     },
@@ -91,8 +95,17 @@ export default {
       ret.sort((a, b) => {
         return a.title.charCodeAt(0) - b.title.charCodeAt(0);
       });
-      return hot.concat(ret)
+      return hot.concat(ret);
     },
+    selectSinger(singer) {
+      // 点击跳转选中歌手
+      this.$router.push({
+        path: `/singer/${singer.id}`,
+      });
+    //   存储数据
+    this.setSinger(singer);
+    },
+
   },
 };
 </script>

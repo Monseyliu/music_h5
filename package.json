@@ -10,6 +10,7 @@
     "axios": "^0.21.1",
     "better-scroll": "^1.15.1",
     "core-js": "^3.6.5",
+    "js-base64": "^3.6.0",
     "jsonp": "^0.2.1",
     "node-sass": "^5.0.0",
     "sass-loader": "^10.1.1",
@@ -23,6 +24,7 @@
     "@vue/cli-plugin-router": "~4.5.0",
     "@vue/cli-plugin-vuex": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
+    "body-parser": "^1.19.0",
     "vue-template-compiler": "^2.6.11"
   },
   "browserslist": [

@@ -30,4 +30,7 @@ export default {
 
 <style lang="scss" scoped>
 @import "~@/assets/style/mixin.scss";
+.home{
+    overflow: hidden;
+}
 </style>

@@ -70,14 +70,30 @@ module.exports = {
           console.log(e)
         })
       })
+      // 歌曲列表
+      app.post('/api/getPurlUrl', bodyParser.json(), function (req, res) {
+        const url = 'https://u.y.qq.com/cgi-bin/musicu.fcg'
+        axios.post(url, req.body, {
+          headers: {
+            referer: 'https://y.qq.com/',
+            origin: 'https://y.qq.com',
+            'Content-type': 'application/x-www-form-urlencoded'
+          }
+        }).then((response) => {
+          res.json(response.data)
+        }).catch((e) => {
+          console.log(e)
+        })
+      })
+      
     }
   },
   chainWebpack(config) {
     config.resolve.alias
       .set('components', resolve('src/components'))
-      .set('common', resolve('src/common'))
+      .set('common', resolve('src/components/common'))
       .set('api', resolve('src/api'))
-      .set('base', resolve('src/base'))
+      .set('base', resolve('src/components/base'))
       .set('config', resolve('src/config'))
   },
   publicPath: ''

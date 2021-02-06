@@ -18,6 +18,7 @@
         <h2 class="list-group-title">{{ group.title }}</h2>
         <ul>
           <li
+           @click="selectItem(item)"
             class="list-group-item"
             v-for="(item, index) in group.items"
             :key="index"
@@ -142,6 +143,7 @@ export default {
       this.currentIndex = listHeight.length - 2;
     },
     diff(newVal) {
+      // 控制固定栏移动
       let fixedTop =
         newVal > 0 && newVal < TITLE_HEIGHT ? newVal - TITLE_HEIGHT : 0;
       if (this.fixedTop === fixedTop) {
@@ -189,6 +191,10 @@ export default {
         this.listHeight.push(height);
       }
     },
+    selectItem(item){
+      // 派发 selectItem方法
+      this.$emit('select', item)
+    }
   },
 };
 </script>

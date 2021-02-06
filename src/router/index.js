@@ -8,7 +8,10 @@ const Home = () => import(/*webpackChunkName: "home-home"*/'../pages/home/Home')
 const Rank = () => import(/*webpackChunkName: "home-rank"*/'../pages/rank/Rank');
 const Recommend = () => import(/*webpackChunkName: "home-recommend"*/'../pages/recommend/Recommend');
 const Search = () => import(/*webpackChunkName: "home-search"*/'../pages/search/Search');
-const Singer = () => import(/*webpackChunkName: "home-rank"*/'../pages/singer/Singer');
+const Singer = () => import(/*webpackChunkName: "home-singer"*/'../pages/singer/Singer');
+
+// Singer 子路由
+const SingerDetail = () => import(/*webpackChunkName: "singer-detail"*/'components/common/singer-detail/singer-detail');
 
 Vue.use(VueRouter)
 
@@ -20,7 +23,9 @@ const routes = [
       { path: '/rank', component: Rank },
       { path: '/recommend', component: Recommend },
       { path: '/search', component: Search },
-      { path: '/singer', component: Singer },
+      { path: '/singer', component: Singer, children: [
+        { path: ':id', component: SingerDetail}
+      ] },
     ]
   },
 
