@@ -7,13 +7,16 @@
       <keep-alive>
       <router-view></router-view>
       </keep-alive>
+      <!-- 播放器组件 不受路由限制 -->
+      <Player />
   </div>
 </template>
 
 <script>
-// 引入 头部 Tab 组件
+// 引入 头部 Tab Player 组件
 import MHeader from "components/common/m-header/m-header";
 import TabBar from "components/tabbar/TabBar";
+import Player from "components/common/player/player"
 
 export default {
   name: "",
@@ -23,6 +26,7 @@ export default {
   components: {
     MHeader,
     TabBar,
+    Player
   },
   methods: {},
 };

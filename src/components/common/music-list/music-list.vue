@@ -30,7 +30,7 @@
       ref="list"
     >
       <div class="song-list-wrapper">
-        <SongList :songs="songs" />
+        <SongList :songs="songs" @select="selectItem" />
       </div>
       <!-- loading 组件 -->
       <div class="loading-container" v-show="!songs.length">
@@ -47,6 +47,7 @@ import Loading from "components/base/loading/loading";
 import SongList from "components/base/song-list/song-list";
 // 引入 js  配置
 import { prefixStyle } from "config/js/dom";
+import { mapActions } from "vuex";
 
 // 预留顶部固定偏移量
 const RESERVED_HEIGHT = 40;
@@ -91,12 +92,20 @@ export default {
     },
   },
   methods: {
+    ...mapActions(['selectPlay']),
     scroll(pos) {
       //   监听歌单列表滚动事件
       this.scrollY = pos.y;
     },
     back() {
       this.$router.back();
+    },
+    selectItem(item, index) {
+      // 接收 song-list 派发过来的点击事件-设置相关列表和播放歌曲-同时多事件，使用actions
+      this.selectPlay({
+        list: this.songs,
+        index: index,
+      })
     },
   },
   watch: {
@@ -151,6 +160,7 @@ export default {
 
 .music-list {
   @include fixed-full-screen;
+  z-index: 100;
   background: $color-background;
   // 返回按钮
   .back {
