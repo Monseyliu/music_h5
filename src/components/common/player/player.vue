@@ -33,30 +33,37 @@
         </div>
         <!-- 底部 -->
         <div class="bottom">
-            <!-- 歌曲进度条 -->
-            <div class="progress-wrapper">
-                <span class="time time-l">{{currentTime}}</span>
-                <div class="progress-bar-wrapper">
-                    <!-- 进度条组件 -->
-                    <ProgressBar :percent="percent" @percentChange="onProgressBarChange" />
-                </div>
-                <span class="time time-r">{{format(currentSong.duration)}}</span>
+          <!-- 歌曲进度条 -->
+          <div class="progress-wrapper">
+            <span class="time time-l">{{ currentTime }}</span>
+            <div class="progress-bar-wrapper">
+              <!-- 进度条组件 -->
+              <ProgressBar
+                :percent="percent"
+                @percentChange="onProgressBarChange"
+              />
             </div>
+            <span class="time time-r">{{ format(currentSong.duration) }}</span>
+          </div>
           <div class="operators">
             <!-- 左侧 -->
-            <div class="icon i-left">
-              <i class="iconfont icon-sequence"></i>
+            <div class="icon i-left" @click="changeMode">
+              <i :class="iconMode"></i>
             </div>
             <div class="icon i-left" :class="disableCls">
-              <i @click="prev"  class="iconfont icon-prev"></i>
+              <i @click="prev" class="iconfont icon-prev"></i>
             </div>
             <!-- 中间 -->
             <div class="icon i-center" :class="disableCls">
-              <i @click="togglePlaying"  class="iconfont" :class="playIcon"></i>
+              <i @click="togglePlaying" class="iconfont" :class="playIcon"></i>
             </div>
             <!-- 右侧 -->
             <div class="icon i-right" :class="disableCls">
-              <i @click="next" :class="disableCls" class="iconfont icon-next"></i>
+              <i
+                @click="next"
+                :class="disableCls"
+                class="iconfont icon-next"
+              ></i>
             </div>
             <div class="icon i-right">
               <i class="iconfont icon-not-favorite"></i>
@@ -85,7 +92,14 @@
         </div>
         <!-- 右侧 -->
         <div class="control">
-          <i :class="miniIcon" @click.stop="togglePlaying"></i>
+          <!-- 原型进度条 -->
+          <ProgressCircle :radius="radius" :percent="percent">
+            <i
+              :class="miniIcon"
+              class="icon-mini"
+              @click.stop="togglePlaying"
+            ></i>
+          </ProgressCircle>
         </div>
         <div class="control">
           <i class="iconfont icon-playlist"></i>
@@ -99,6 +113,7 @@
       @canplay="ready"
       @error="erro"
       @timeupdate="updateTime"
+      @ended="end"
     ></audio>
   </div>
 </template>
@@ -108,8 +123,11 @@
 import { mapGetters, mapMutations } from "vuex";
 import animations from "create-keyframe-animation";
 import { prefixStyle } from "config/js/dom";
+import { playMode } from "config/common/config";
+import { shuffle } from "config/js/util";
 // 组件
-import ProgressBar from "base/progress-bar/progress-bar"
+import ProgressBar from "base/progress-bar/progress-bar";
+import ProgressCircle from "base/progress-circle/progress-circle";
 
 const transform = prefixStyle("transform");
 
@@ -118,12 +136,14 @@ export default {
   data() {
     return {
       songReady: false, //控制歌曲是否可被切换
-      currentTime: '00:00', //进度条时间
+      currentTime: "00:00", //进度条时间
       percentTime: 0,
+      radius: 30,
     };
   },
-  components:{
-      ProgressBar
+  components: {
+    ProgressBar,
+    ProgressCircle,
   },
   computed: {
     ...mapGetters([
@@ -132,6 +152,8 @@ export default {
       "currentSong",
       "playing",
       "currentIndex",
+      "mode",
+      "sequenceList",
     ]),
     playIcon() {
       // 播放/暂停 icon
@@ -144,17 +166,26 @@ export default {
       // 旋转类设置
       return this.playing ? "play" : "play pause";
     },
-    disableCls(){
-        // 控制禁用状态样式
-        return this.songReady ? "" : "disable"
+    disableCls() {
+      // 控制禁用状态样式
+      return this.songReady ? "" : "disable";
     },
-    percent(){
-        return this.percentTime / this.currentSong.duration;
-    }
+    percent() {
+      return this.percentTime / this.currentSong.duration;
+    },
+    iconMode() {
+      // 控制 播放模式
+      return this.mode === playMode.sequence
+        ? "icon-sequence"
+        : this.mode === playMode.loop
+        ? "icon-loop"
+        : "icon-random";
+    },
   },
   watch: {
-    currentSong() {
+    currentSong(newSong, oldSong) {
       //   监听当前歌曲的变化播放
+      if(newSong.id === oldSong.id) return;
       this.$nextTick(() => {
         this.$refs.audio.play();
       });
@@ -172,6 +203,8 @@ export default {
       "SET_FULL_SCREEN",
       "SET_PLAYING_STATE",
       "SET_CURRENT_INDEX",
+      "SET_PLAY_MODE",
+      "SET_PLAYLIST",
     ]),
     back() {
       //   点击显示mini播放器
@@ -275,30 +308,64 @@ export default {
       this.songReady = false;
     },
     ready() {
-        this.songReady = true;
+      this.songReady = true;
     },
-    erro(){
-        // 网络错误状态或者歌曲加载失败
-        this.songReady = true;
+    erro() {
+      // 网络错误状态或者歌曲加载失败
+      this.songReady = true;
     },
-    updateTime(e){
-        // 播放器时间
-        this.percentTime = e.target.currentTime;
-        this.currentTime = this.format(e.target.currentTime);
-    },
-    format(interval){
-        // 处理时间
-        interval = interval | 0;
-        const minute = (interval /60 | 0).toString().padStart(2, '0');
-        const second = (interval %60).toString().padStart(2, '0');
-        return `${minute}:${second}`
-    },
-    onProgressBarChange(percent){
-        // 监听bar组件触发的拖动完成事件，改变百分比
-        this.$refs.audio.currentTime = this.currentSong.duration * percent;
-        if(!this.playing){
-            this.togglePlaying();
+    end(){
+        if(this.mode === playMode.loop){
+            this.loop();
+        } else {
+            this.next();
         }
+        
+    },
+    loop(){
+        // 单曲循序
+        this.$refs.audio.currentTime = 0;
+        this.$refs.audio.play();
+    },
+    updateTime(e) {
+      // 播放器时间
+      this.percentTime = e.target.currentTime;
+      this.currentTime = this.format(e.target.currentTime);
+    },
+    format(interval) {
+      // 处理时间
+      interval = interval | 0;
+      const minute = ((interval / 60) | 0).toString().padStart(2, "0");
+      const second = (interval % 60).toString().padStart(2, "0");
+      return `${minute}:${second}`;
+    },
+    // 进度条
+    onProgressBarChange(percent) {
+      // 监听bar组件触发的拖动完成事件，改变百分比
+      this.$refs.audio.currentTime = this.currentSong.duration * percent;
+      if (!this.playing) {
+        this.togglePlaying();
+      }
+    },
+    changeMode() {
+      // 更改播放模式
+      const mode = (this.mode + 1) % 3;
+      this.SET_PLAY_MODE(mode);
+      let list = null;
+      if (mode === playMode.random) {
+        list = shuffle(this.sequenceList);
+      } else {
+        list = this.sequenceList;
+      }
+      this.resetCurrentIndex(list);
+      this.SET_PLAYLIST(list);
+    },
+    resetCurrentIndex(list){
+        // 控制当前歌曲
+        let index = list.findIndex((item) => {
+            return item.id === this.currentSong.id
+        })
+        this.SET_CURRENT_INDEX(index);
     }
   },
 };
@@ -396,31 +463,31 @@ export default {
       position: absolute;
       bottom: 1rem;
       width: 100%;
-    //   进度条
-    .progress-wrapper{
+      //   进度条
+      .progress-wrapper {
         display: flex;
         align-items: center;
         width: 80%;
         margin: 0 auto;
-        padding: .2rem 0;
-        .time{
-            color: $color-text;
-            font-size: $font-size-small;
-            flex: 0 0 .6rem;
-            line-height: .6rem;
-            width: .6rem;
+        padding: 0.2rem 0;
+        .time {
+          color: $color-text;
+          font-size: $font-size-small;
+          flex: 0 0 0.6rem;
+          line-height: 0.6rem;
+          width: 0.6rem;
         }
-        .time-l{
-            text-align: left;
+        .time-l {
+          text-align: left;
         }
-        .progress-bar-wrapper{
-            flex: 1;
+        .progress-bar-wrapper {
+          flex: 1;
         }
-        .time-r{
-            text-align: right;
+        .time-r {
+          text-align: right;
         }
-    }
-    // 操作栏
+      }
+      // 操作栏
       .operators {
         display: flex;
         align-items: center;
@@ -493,17 +560,17 @@ export default {
       flex: 0 0 0.6rem;
       width: 0.6rem;
       padding: 0 0.2rem;
-      .icon-play-mini,
-      .icon-pause-mini,
-      .icon-playlist {
-        font-size: 0.6rem;
-        color: $color-theme-d;
-      }
       .icon-mini {
         font-size: 0.62rem;
         position: absolute;
         left: 0;
         top: 0;
+      }
+      .icon-play-mini,
+      .icon-pause-mini,
+      .icon-playlist {
+        font-size: 0.6rem;
+        color: $color-theme-d;
       }
     }
   }

@@ -10,8 +10,8 @@
     <!-- 背景图 -->
     <div class="bg-image" :style="bgStyle" ref="bgImage">
       <!-- 播放按钮 -->
-      <div class="play-wrapper">
-        <div class="play" v-show="songs.length > 0" ref="playBtn">
+      <div class="play-wrapper" >
+        <div class="play" v-show="songs.length > 0" ref="playBtn" @click="random">
           <i class="iconfont icon-play"></i>
           <span class="text">随机播放全部</span>
         </div>
@@ -92,7 +92,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['selectPlay']),
+    ...mapActions(['selectPlay', 'randomPlay']),
     scroll(pos) {
       //   监听歌单列表滚动事件
       this.scrollY = pos.y;
@@ -107,6 +107,12 @@ export default {
         index: index,
       })
     },
+    random(){
+      // 随机播放
+      this.randomPlay({
+        list: this.songs
+      })
+    }
   },
   watch: {
     scrollY(newVal) {
