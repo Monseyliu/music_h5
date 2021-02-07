@@ -1,4 +1,4 @@
-// 全部引入types常量
+// 全部引入types
 import * as types from './mutation-types';
 
  const mutations = {

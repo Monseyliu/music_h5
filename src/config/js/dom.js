@@ -6,7 +6,7 @@ export function addClass(el, className){
     NewClass.push(className);
     el.className = NewClass.join(' ');
 }
-
+// 类名
 export function hasClass(el, className){
     let reg = new RegExp('(^|\\s)' + className + '(\\s|$)');
     return reg.test(el.className)
@@ -44,10 +44,14 @@ let vendor = (() => {
     return false 
 })()
 // 将方法暴露出去
-export function prefixStyle(style) {
-    if(vendor === false) return false;
-    
-    if(vendor === 'standard') return style;
-
-    return vendor + style.charAt(0).toUpperCase() + style.substr(1);
-}
+export function prefixStyle (style) {
+    if (vendor === false) {
+      return false
+    }
+  
+    if (vendor === 'standard') {
+      return style
+    }
+  
+    return vendor + style.charAt(0).toUpperCase() + style.substr(1)
+  }

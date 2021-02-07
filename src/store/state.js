@@ -1,4 +1,4 @@
-// 引入播放模式
+// 播放模式
 import { playMode } from 'config/common/config'
 
 const state = {

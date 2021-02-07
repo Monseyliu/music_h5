@@ -25,7 +25,7 @@ export default {
   },
   methods: {
     getDesc(song) {
-      return `${song.singer}。${song.album}`;
+      return `${song.singer}·${song.album}`;
     },
     // 派发点击歌曲事件
     selectItem(item, index){
