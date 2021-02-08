@@ -1,7 +1,7 @@
 <template >
-  <div class="singer">
+  <div class="singer" ref="singer">
     <!-- 歌手列表 -->
-    <ListView :data="singers" @select="selectSinger" />
+    <ListView :data="singers" @select="selectSinger" ref="list" />
     <!-- 歌手页面详情子路由 -->
     <router-view></router-view>
   </div>
@@ -12,6 +12,7 @@
 import { getSingerList } from "api/singer";
 import { ERR_OK } from "api/config";
 import Singer from "config/js/singer";
+import { playlistMixin } from "config/js/mixin"
 // 组件
 import ListView from "components/base/listView/listView";
 // vuex 引入
@@ -22,6 +23,7 @@ const HOT_NAME = "热门";
 const HOT_SINGER_LEN = 10;
 
 export default {
+  mixins: [playlistMixin],
   name: "MSinger",
   data() {
     return {
@@ -105,7 +107,11 @@ export default {
     //   存储数据
     this.setSinger(singer);
     },
-
+    handlePlaylist(playlist){
+      const bottom = playlist.length > 0 ? '1.2rem' : '';
+      this.$refs.singer.style.bottom = bottom;
+      this.$refs.list.refresh();
+    }
   },
 };
 </script>

@@ -194,6 +194,10 @@ export default {
     selectItem(item){
       // 派发 selectItem方法
       this.$emit('select', item)
+    },
+    refresh(){
+      // 暴露 refresh 接口供 singer 组件使用
+      this.$refs.listview.refresh();
     }
   },
 };

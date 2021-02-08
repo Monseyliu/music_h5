@@ -48,6 +48,7 @@ import SongList from "components/base/song-list/song-list";
 // 引入 js  配置
 import { prefixStyle } from "config/js/dom";
 import { mapActions } from "vuex";
+import { playlistMixin } from "config/js/mixin"
 
 // 预留顶部固定偏移量
 const RESERVED_HEIGHT = 40;
@@ -56,6 +57,7 @@ const transform = prefixStyle("transform");
 const backdrop = prefixStyle("backdrop-filter");
 
 export default {
+  mixins: [playlistMixin],
   name: "",
   props: {
     bgImage: {
@@ -112,6 +114,11 @@ export default {
       this.randomPlay({
         list: this.songs
       })
+    },
+    handlePlaylist(playlist){
+      const bottom = playlist.length > 0 ? '1.2rem' : '';
+      this.$refs.list.$el.style.bottom = bottom;
+      this.$refs.list.refresh();
     }
   },
   watch: {

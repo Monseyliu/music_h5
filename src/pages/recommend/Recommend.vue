@@ -1,5 +1,5 @@
 <template >
-  <div class="recommend">
+  <div class="recommend" ref="recommend">
     <Scroll class="recommend-content" :data="discList" ref="scroll">
       <div>
         <!-- 轮播 -->
@@ -45,11 +45,13 @@
 import MSllider from "components/base/slider";
 import Scroll from "components/base/scroll";
 import MLoading from "components/base/loading/loading"
-// 获取推荐数据的方法 状态码
+// js 配置
 import { getRecommend, getDiscList } from "api/recommend.js";
 import { ERR_OK } from "api/config.js";
+import { playlistMixin } from "config/js/mixin"
 
 export default {
+  mixins: [playlistMixin],
   name: "MRecommend",
   data() {
     return {
@@ -91,6 +93,11 @@ export default {
         this.checkLoaded = true;
       }
     },
+    handlePlaylist(playlist){
+      const bottom = playlist.length > 0 ? '1.2rem' : '';
+      this.$refs.recommend.style.bottom = bottom;
+      this.$refs.scroll.refresh();
+    }
   },
 };
 </script>

@@ -22,17 +22,45 @@
           <h2 class="subtitle" v-html="currentSong.singer"></h2>
         </div>
         <!-- 中间 -->
-        <div class="middle">
-          <div class="middle-l">
+        <div class="middle" 
+            @touchstart.prevent="middleTouchStart"
+            @touchmove.prevent="middleTouchMove"
+            @touchend="middleTouchEnd"
+        >
+          <!-- 旋转唱片 -->
+          <div class="middle-l" ref="middleL">
             <div class="cd-wrapper" ref="cdWrapper">
               <div class="cd" :class="cdCls">
                 <img class="image" :src="currentSong.image" />
               </div>
             </div>
+            <!-- 当前播放歌词 -->
+            <div class="playing-lyric-wrapper">
+                <div class="playing-lyric">{{playingLyric}}</div>
+            </div>
           </div>
+          <!-- 歌词 -->
+          <Scroll class="middle-r" ref="lyricList" :data="currentLyric && currentLyric.lines">
+            <div class="lyric-wrapper">
+              <div v-if="currentLyric">
+                <p
+                  class="text"
+                  ref="lyricLine"
+                  v-for="(item, index) in currentLyric.lines"
+                  :key="index"
+                  :class="{'current': currentLineNum === index}"
+                >{{item.txt}}</p>
+              </div>
+            </div>
+          </Scroll>
         </div>
         <!-- 底部 -->
         <div class="bottom">
+            <!-- 歌词切换显示的点 -->
+            <div class="dot-wrapper">
+                <span class="dot" :class="{'active': currentShow === 'cd' }"></span>
+                <span class="dot" :class="{'active': currentShow === 'lyric' }"></span>
+            </div>
           <!-- 歌曲进度条 -->
           <div class="progress-wrapper">
             <span class="time time-l">{{ currentTime }}</span>
@@ -125,11 +153,15 @@ import animations from "create-keyframe-animation";
 import { prefixStyle } from "config/js/dom";
 import { playMode } from "config/common/config";
 import { shuffle } from "config/js/util";
+// 歌词处理三方库
+import Lyric from "lyric-parser";
 // 组件
 import ProgressBar from "base/progress-bar/progress-bar";
 import ProgressCircle from "base/progress-circle/progress-circle";
+import Scroll from "base/scroll";
 
 const transform = prefixStyle("transform");
+const transitionDuration = prefixStyle("transitionDuration");
 
 export default {
   name: "Player",
@@ -139,11 +171,16 @@ export default {
       currentTime: "00:00", //进度条时间
       percentTime: 0,
       radius: 30,
+      currentLyric: null, //歌词
+      currentLineNum: 0, //当前歌词所在行
+      currentShow: 'cd', //歌词dot显示控制
+      playingLyric: '', 
     };
   },
   components: {
     ProgressBar,
     ProgressCircle,
+    Scroll
   },
   computed: {
     ...mapGetters([
@@ -185,10 +222,16 @@ export default {
   watch: {
     currentSong(newSong, oldSong) {
       //   监听当前歌曲的变化播放
-      if(newSong.id === oldSong.id) return;
-      this.$nextTick(() => {
+      if (newSong.id === oldSong.id) return;
+    //  清除定时器，解决歌词跳动bug
+    if(this.currentLyric) {
+        this.currentLyric.stop();
+    }
+      setTimeout(() => {
         this.$refs.audio.play();
-      });
+        // 获取歌词
+        this.getLyric();
+      }, 1000);
     },
     playing(newPlaying) {
       // 监听播放状态
@@ -197,6 +240,10 @@ export default {
         newPlaying ? audio.play() : audio.pause();
       });
     },
+  },
+  created(){
+    //   用于存储 touch原生事件对象
+      this.touch = {}
   },
   methods: {
     ...mapMutations([
@@ -279,11 +326,18 @@ export default {
     },
     // 音乐播放相关
     togglePlaying() {
+        if(!this.songReady) return;
       this.SET_PLAYING_STATE(!this.playing);
+      if(this.currentLyric) {
+          this.currentLyric.togglePlay();
+      }
     },
     prev() {
       // 上一首
       if (!this.songReady) return;
+      if(this.playlist.length === 1){
+          this.loop();
+      } else {
       let index = this.currentIndex - 1;
       if (index === -1) {
         index = this.playlist.length - 1;
@@ -292,11 +346,15 @@ export default {
       if (!this.playing) {
         this.togglePlaying();
       }
+      }
       this.songReady = false;
     },
     next() {
       // 下一首
       if (!this.songReady) return;
+      if(this.playlist.length === 1) {
+          this.loop()
+      } else {
       let index = this.currentIndex + 1;
       if (index === this.playlist.length) {
         index = 0;
@@ -304,6 +362,7 @@ export default {
       this.SET_CURRENT_INDEX(index);
       if (!this.playing) {
         this.togglePlaying();
+      }
       }
       this.songReady = false;
     },
@@ -314,18 +373,20 @@ export default {
       // 网络错误状态或者歌曲加载失败
       this.songReady = true;
     },
-    end(){
-        if(this.mode === playMode.loop){
-            this.loop();
-        } else {
-            this.next();
-        }
-        
+    end() {
+      if (this.mode === playMode.loop) {
+        this.loop();
+      } else {
+        this.next();
+      }
     },
-    loop(){
-        // 单曲循序
-        this.$refs.audio.currentTime = 0;
-        this.$refs.audio.play();
+    loop() {
+      // 单曲循序
+      this.$refs.audio.currentTime = 0;
+      this.$refs.audio.play();
+      if(this.currentLyric) {
+          this.currentLyric.seek(0);
+      }
     },
     updateTime(e) {
       // 播放器时间
@@ -342,9 +403,13 @@ export default {
     // 进度条
     onProgressBarChange(percent) {
       // 监听bar组件触发的拖动完成事件，改变百分比
-      this.$refs.audio.currentTime = this.currentSong.duration * percent;
+      const currentTime = this.currentSong.duration * percent;
+      this.$refs.audio.currentTime = currentTime
       if (!this.playing) {
         this.togglePlaying();
+      }
+      if(this.currentLyric){
+          this.currentLyric.seek(currentTime * 1000);
       }
     },
     changeMode() {
@@ -360,13 +425,90 @@ export default {
       this.resetCurrentIndex(list);
       this.SET_PLAYLIST(list);
     },
-    resetCurrentIndex(list){
-        // 控制当前歌曲
-        let index = list.findIndex((item) => {
-            return item.id === this.currentSong.id
-        })
-        this.SET_CURRENT_INDEX(index);
+    resetCurrentIndex(list) {
+      // 控制当前歌曲
+      let index = list.findIndex((item) => {
+        return item.id === this.currentSong.id;
+      });
+      this.SET_CURRENT_INDEX(index);
+    },
+    //歌词处理
+    getLyric() {
+      this.currentSong.getLyric().then((lyric) => {
+        this.currentLyric = new Lyric(lyric, this.handleLyric);
+        if(this.playing){
+            this.currentLyric.play();
+        }
+      }).catch(err => {
+          this.currentLyric = null;
+          this.playingLyric = '';
+          this.currentLineNum = 0;
+      })
+    },
+    handleLyric({lineNum, txt}){
+        if (!this.$refs.lyricLine) {
+          return
+        }
+        this.currentLineNum = lineNum
+        if (lineNum > 5) {
+          let lineEl = this.$refs.lyricLine[lineNum - 5]
+          this.$refs.lyricList.scrollToElement(lineEl, 1000)
+        } else {
+          this.$refs.lyricList.scrollTo(0, 0, 1000)
+        }
+        this.playingLyric = txt;
+    },
+    // 歌词滑动处理
+    middleTouchStart(e){
+        this.touch.initiated = true;
+        const touch = e.touches[0];
+        this.touch.startX = touch.pageX;
+        this.touch.startY = touch.pageY;
+    },
+    middleTouchMove(e){
+        if(!this.touch.initiated) return;
+        const touch = e.touches[0];
+        const deltaX = touch.pageX - this.touch.startX;
+        const deltaY = touch.pageY - this.touch.startY;
+        // 纵向滚动不支持
+        if(Math.abs(deltaY) > Math.abs(deltaX)) return;
+        const left = this.currentShow === 'cd' ? 0 : -window.innerWidth;
+        const offsetWidth = Math.min(0, Math.max(-window.innerWidth, left + deltaX));
+        this.touch.percent = Math.abs(offsetWidth/ window.innerWidth);
+        this.$refs.lyricList.$el.style[transform] = `translate3d(${offsetWidth}px,0,0)`;
+        this.$refs.lyricList.$el.style[transitionDuration] = 0;
+        this.$refs.middleL.style.opacity = 1- this.touch.percent;
+        this.$refs.middleL.style[transitionDuration] = 0;
+    },
+    middleTouchEnd(){
+        let offsetWidth;
+        let opacity;
+        if(this.currentShow === 'cd') {
+            if(this.touch.percent > 0.1) {
+                offsetWidth = -window.innerWidth;
+                opacity = 0;
+                this.currentShow = 'lyric'
+            } else {
+                offsetWidth = 0;
+                opacity = 1;
+            }
+        } else {
+            if(this.touch.percent < 0.9){
+                offsetWidth = 0;
+                this.currentShow = 'cd';
+                opacity = 1;
+            } else {
+                offsetWidth = -window.innerWidth;
+                opacity = 0;
+            }
+        }
+        const time = 300;
+        this.$refs.lyricList.$el.style[transform] = `translate3d(${offsetWidth}px,0,0)`;
+        this.$refs.lyricList.$el.style[transitionDuration] = `${time}ms`
+         this.$refs.middleL.style.opacity = opacity;
+        this.$refs.middleL.style[transitionDuration] = `${time}ms`;
     }
+
   },
 };
 </script>
@@ -456,6 +598,40 @@ export default {
             }
           }
         }
+        // 当前歌词
+        .playing-lyric-wrapper{
+            width: 80%;
+            margin: .6rem auto 0 auto;
+            overflow: hidden;
+            text-align: center;
+            .playing-lyric{
+                height: .4rem;
+              line-height: .4rem;
+              font-size: $font-size-medium;
+              color: $color-text-l;
+            }
+        }
+      }
+      //   歌词
+      .middle-r {
+        display: inline-block;
+        vertical-align: top;
+        @include wh(100%, 100%);
+        overflow: hidden;
+        .lyric-wrapper {
+          width: 80%;
+          margin: 0 auto;
+          overflow: hidden;
+          text-align: center;
+          .text {
+            line-height: 0.64rem;
+            color: $color-text-l;
+            font-size: $font-size-medium;
+          }
+          .current{
+              color: $color-text;
+          }
+        }
       }
     }
     // 底部
@@ -463,6 +639,24 @@ export default {
       position: absolute;
       bottom: 1rem;
       width: 100%;
+    //   歌词显示控制点
+    .dot-wrapper{
+        text-align: center;
+          font-size: 0;
+       .dot{
+           display: inline-block;
+           vertical-align: middle;
+           @include wh(.16rem, .16rem);
+           margin: 0 .08rem;
+           border-radius: 50%;
+           background: $color-text-l;
+       } 
+       .active {
+           width: .4rem;
+           border-radius: .1rem;
+           background: $color-text-ll;
+       }
+    }
       //   进度条
       .progress-wrapper {
         display: flex;
