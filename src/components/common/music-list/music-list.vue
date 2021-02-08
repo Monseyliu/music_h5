@@ -30,7 +30,7 @@
       ref="list"
     >
       <div class="song-list-wrapper">
-        <SongList :songs="songs" @select="selectItem" />
+        <SongList :rank="rank" :songs="songs" @select="selectItem" />
       </div>
       <!-- loading 组件 -->
       <div class="loading-container" v-show="!songs.length">
@@ -72,6 +72,10 @@ export default {
       type: String,
       deafult: "",
     },
+    rank: {
+      type: Boolean,
+      default: false
+    }
   },
   data() {
     return {

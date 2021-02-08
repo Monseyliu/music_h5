@@ -1,13 +1,18 @@
 <template >
   <transition name="slide">
-    <MusicList :title="title" :bgImage="bgImage" :songs="songs"></MusicList>
+    <MusicList
+      :rank="rank"
+      :title="title"
+      :bgImage="bgImage"
+      :songs="songs"
+    ></MusicList>
   </transition>
 </template>
 
 <script>
-// js 配置
+//js 配置
 import { mapGetters } from "vuex";
-import { getSongList } from "api/recommend";
+import { getMusicList } from "api/rank";
 import { ERR_OK } from "api/config";
 import { createSong, isValidMusic, processSongsUrl } from "config/js/song";
 // 组件
@@ -17,43 +22,45 @@ export default {
   data() {
     return {
       songs: [], //歌曲列表
+      rank: true,
     };
-  },
-  computed: {
-    ...mapGetters(["disc"]),
-    title() {
-      return this.disc.dissname;
-    },
-    bgImage() {
-      return this.disc.imgurl;
-    },
   },
   components: {
     MusicList,
   },
+  computed: {
+    ...mapGetters(["topList"]),
+    title() {
+      return this.topList.topTitle;
+    },
+    bgImage() {
+      if (this.songs.length) {
+        return this.songs[0].image;
+      }
+      return "";
+    },
+  },
   created() {
-    this._getSongList();
+    this._getMusicList();
   },
   methods: {
-    //   歌单歌曲获取
-    _getSongList() {
-      if (!this.disc.dissid) {
-        this.$router.push("/recommend");
+    _getMusicList() {
+      if (!this.topList.id) {
+        this.$router.push("/rank");
         return;
       }
-      getSongList(this.disc.dissid).then((res) => {
+      getMusicList(this.topList.id).then((res) => {
         if (res.code === ERR_OK) {
-          processSongsUrl(this._normalizeSongs(res.cdlist[0].songlist)).then(
-            (songs) => {
-              this.songs = songs;
-            }
-          );
+          processSongsUrl(this._normalizeSongs(res.songlist)).then((songs) => {
+            this.songs = songs;
+          });
         }
       });
     },
     _normalizeSongs(list) {
       let ret = [];
-      list.forEach((musicData) => {
+      list.forEach((item) => {
+        const musicData = item.data;
         if (isValidMusic(musicData)) {
           ret.push(createSong(musicData));
         }
@@ -66,10 +73,11 @@ export default {
 
 <style lang="scss" scoped>
 @import "~@/assets/style/mixin.scss";
-// 动画
+
+//transition动画
 .slide-enter-active,
 .slide-leave-active {
-  transition: all 0.3s;
+  transition: all 0.3s ease;
 }
 .slide-enter,
 .slide-leave-to {

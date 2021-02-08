@@ -9,7 +9,8 @@ const state = {
     sequenceList: [], //播放顺序-有随机-列表-单曲排列
     mode: playMode.sequence, //默认顺序播放
     currentIndex: -1, //当前播放索引
-    disc: [], //歌单
+    disc: {}, //歌单
+    topList: {}, //榜单歌曲
 }
 
 export default state;
