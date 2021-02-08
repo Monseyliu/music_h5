@@ -18,7 +18,7 @@
         <div class="recommend-list">
           <h1 class="list-title">热门歌单推荐</h1>
           <ul>
-            <li class="item" v-for="item in discList" :key="item.dissid">
+            <li @click="selectItem(item)" class="item" v-for="item in discList" :key="item.dissid">
               <!-- 图标 -->
               <div class="icon">
                 <img v-lazy="item.imgurl" width="60" height="60" alt="" />
@@ -37,10 +37,14 @@
         <MLoading />
       </div>
     </Scroll>
+    <!-- 子路由容器 -->
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
+// vuex
+import { mapMutations } from "vuex";
 // 引入 轮播 滚动 loading 组件
 import MSllider from "components/base/slider";
 import Scroll from "components/base/scroll";
@@ -69,6 +73,7 @@ export default {
     this._getDiscList();
   },
   methods: {
+    ...mapMutations(['SET_DISC']),
     _getRecommend() {
       // 获取轮播图
       getRecommend().then((res) => {
@@ -97,6 +102,13 @@ export default {
       const bottom = playlist.length > 0 ? '1.2rem' : '';
       this.$refs.recommend.style.bottom = bottom;
       this.$refs.scroll.refresh();
+    },
+    // 跳转歌单
+    selectItem(item){
+      this.$router.push({
+        path: `/recommend/${item.dissid}`
+      });
+      this.SET_DISC(item);
     }
   },
 };

@@ -12,6 +12,7 @@ const Singer = () => import(/*webpackChunkName: "home-singer"*/'../pages/singer/
 
 // Singer 子路由
 const SingerDetail = () => import(/*webpackChunkName: "singer-detail"*/'components/common/singer-detail/singer-detail');
+const Disc = () => import(/*webpackChunkName: "singer-detail"*/'components/common/disc/disc');
 
 Vue.use(VueRouter)
 
@@ -21,7 +22,9 @@ const routes = [
     path: '/home', component: Home, children: [
       { path: '/home', redirect: '/recommend'},
       { path: '/rank', component: Rank },
-      { path: '/recommend', component: Recommend },
+      { path: '/recommend', component: Recommend, children:[
+        { path: ':id', component: Disc}
+      ] },
       { path: '/search', component: Search },
       { path: '/singer', component: Singer, children: [
         { path: ':id', component: SingerDetail}

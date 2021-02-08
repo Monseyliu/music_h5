@@ -111,6 +111,30 @@ module.exports = {
         })
       })
 
+      // 歌单歌曲
+      app.get('/api/getCdInfo', function(req, res) {
+        const url = 'https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg';
+
+        axios.get(url, {
+          headers: {
+            referer: 'https://c.y.qq.com/',
+            host: 'c.y.qq.com'
+          },
+          params: req.query
+        }).then(response => {
+          let ret = response.data;
+          if(typeof ret === 'string') {
+            const reg = /^\w+\(({.+})\)$/;
+            const matchs = ret.match(reg);
+            if(matchs){
+              ret = JSON.parse(matchs[1])
+            }
+          }
+          res.json(ret)
+        }).catch(err => {
+          console.log(err)
+        })
+      })
 
     }
   },
