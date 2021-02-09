@@ -26,6 +26,14 @@ export default {
     listenScroll: {
       type: Boolean, //是否要监听滚动事件
       default: false
+    },
+    pullup: {
+      type: Boolean, //是否开启上拉刷新
+      default: false
+    },
+    beforeScroll: {
+      type: Boolean,
+      default: false
     }
   },
   mounted() {
@@ -58,6 +66,20 @@ export default {
           me.$emit('scroll', pos)
         })
       }
+      // 是否上拉刷新-派发事件
+      if(this.pullup) {
+        this.scroll.on('scrollEnd', () => {
+          if(this.scroll.y <= (this.scroll.maxScrollY + 50)) {
+            this.$emit('scrollToEnd')
+          }
+        })
+      }
+      //beforeScroll
+      if(this.beforeScroll) {
+        this.scroll.on('beforeScrollStart', () => {
+          this.$emit('beforeScroll')
+        })
+      }
     },
     //   代理 BScroll 的方法
     enable() {
@@ -74,7 +96,7 @@ export default {
     },
     scrollToElement() {
       this.scroll && this.scroll.scrollToElement.apply(this.scroll, arguments);
-    }
+    },
   },
 };
 </script>

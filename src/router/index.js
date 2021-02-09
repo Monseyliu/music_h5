@@ -28,7 +28,9 @@ const routes = [
       { path: '/recommend', component: Recommend, children:[
         { path: ':id', component: Disc}
       ] },
-      { path: '/search', component: Search },
+      { path: '/search', component: Search, children:[
+        { path: ':id', component: SingerDetail}
+      ] },
       { path: '/singer', component: Singer, children: [
         { path: ':id', component: SingerDetail}
       ] },
