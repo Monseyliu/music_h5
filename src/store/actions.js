@@ -1,6 +1,7 @@
 import * as types from './mutation-types'
 import { playMode } from 'config/common/config'
 import { shuffle } from '../config/js/util';
+import { saveSearch, deleteSearch, clearSearch } from 'config/js/cache'
 
 // 点击设置播放
 export const selectPlay = function ({ commit, state }, { list, index }) {
@@ -75,4 +76,19 @@ export const insertSong = function ({ commit, state }, song) {
     commit(types.SET_CURRENT_INDEX, currentIndex);
     commit(types.SET_FULL_SCREEN, true);
     commit(types.SET_PLAYING_STATE, true);
+}
+
+// 保存搜索历史
+export const saveSearchHistory = function ({ commit }, query) {
+    commit(types.SET_SEARCH_HISTORY, saveSearch(query));
+}
+
+// 删除单个搜索历史
+export const deleteSearchHistory = function ({commit}, query) {
+    commit(types.SET_SEARCH_HISTORY, deleteSearch(query))
+}
+
+// 清空搜索历史
+export const clearSearchHistory = function ({commit}) {
+    commit(types.SET_SEARCH_HISTORY, clearSearch());
 }

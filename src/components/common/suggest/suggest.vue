@@ -179,10 +179,15 @@ export default {
         // 歌曲
         this.insertSong(item);
       }
+      // 派发用于处理搜索历史的事件
+      this.$emit('select')
     },
     listScroll(){
         // 优化手机键盘派发事件
         this.$emit('listScroll')
+    },
+    refresh(){
+      this.$refs.suggest.refresh();
     }
   },
 };

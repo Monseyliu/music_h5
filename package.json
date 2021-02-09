@@ -26,6 +26,7 @@
     "@vue/cli-plugin-vuex": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
     "body-parser": "^1.19.0",
+    "good-storage": "^1.1.1",
     "lyric-parser": "^1.0.1",
     "vue-template-compiler": "^2.6.11"
   },
