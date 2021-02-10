@@ -129,11 +129,13 @@
             ></i>
           </ProgressCircle>
         </div>
-        <div class="control">
+        <div class="control" @click.stop="showPlaylist">
           <i class="iconfont icon-playlist"></i>
         </div>
       </div>
     </transition>
+    <!-- 播放列表 -->
+    <Playlist ref="playlist" />
     <!-- 音乐播放部分 -->
     <audio
       :src="currentSong.url"
@@ -151,19 +153,22 @@
 import { mapGetters, mapMutations } from "vuex";
 import animations from "create-keyframe-animation";
 import { prefixStyle } from "config/js/dom";
-import { playMode } from "config/common/config";
-import { shuffle } from "config/js/util";
+
+import { playerMixin } from "config/js/mixin"
+import { playMode } from "config/common/config"
 // 歌词处理三方库
 import Lyric from "lyric-parser";
 // 组件
 import ProgressBar from "base/progress-bar/progress-bar";
 import ProgressCircle from "base/progress-circle/progress-circle";
 import Scroll from "base/scroll";
+import Playlist from "common/playlist/playlist"
 
 const transform = prefixStyle("transform");
 const transitionDuration = prefixStyle("transitionDuration");
 
 export default {
+  mixins: [Playlist],
   name: "Player",
   data() {
     return {
@@ -180,7 +185,8 @@ export default {
   components: {
     ProgressBar,
     ProgressCircle,
-    Scroll
+    Scroll,
+    Playlist
   },
   computed: {
     ...mapGetters([
@@ -209,19 +215,12 @@ export default {
     },
     percent() {
       return this.percentTime / this.currentSong.duration;
-    },
-    iconMode() {
-      // 控制 播放模式
-      return this.mode === playMode.sequence
-        ? "icon-sequence"
-        : this.mode === playMode.loop
-        ? "icon-loop"
-        : "icon-random";
-    },
+    }
   },
   watch: {
     currentSong(newSong, oldSong) {
       //   监听当前歌曲的变化播放
+      if(!newSong.id) return;
       if (newSong.id === oldSong.id) return;
     //  清除定时器，解决歌词跳动bug
     if(this.currentLyric) {
@@ -248,10 +247,6 @@ export default {
   methods: {
     ...mapMutations([
       "SET_FULL_SCREEN",
-      "SET_PLAYING_STATE",
-      "SET_CURRENT_INDEX",
-      "SET_PLAY_MODE",
-      "SET_PLAYLIST",
     ]),
     back() {
       //   点击显示mini播放器
@@ -412,26 +407,6 @@ export default {
           this.currentLyric.seek(currentTime * 1000);
       }
     },
-    changeMode() {
-      // 更改播放模式
-      const mode = (this.mode + 1) % 3;
-      this.SET_PLAY_MODE(mode);
-      let list = null;
-      if (mode === playMode.random) {
-        list = shuffle(this.sequenceList);
-      } else {
-        list = this.sequenceList;
-      }
-      this.resetCurrentIndex(list);
-      this.SET_PLAYLIST(list);
-    },
-    resetCurrentIndex(list) {
-      // 控制当前歌曲
-      let index = list.findIndex((item) => {
-        return item.id === this.currentSong.id;
-      });
-      this.SET_CURRENT_INDEX(index);
-    },
     //歌词处理
     getLyric() {
       this.currentSong.getLyric().then((lyric) => {
@@ -507,8 +482,11 @@ export default {
         this.$refs.lyricList.$el.style[transitionDuration] = `${time}ms`
          this.$refs.middleL.style.opacity = opacity;
         this.$refs.middleL.style[transitionDuration] = `${time}ms`;
+    },
+    // 播放列表
+    showPlaylist(){
+      this.$refs.playlist.show();
     }
-
   },
 };
 </script>
