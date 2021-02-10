@@ -150,7 +150,7 @@
 
 <script>
 // 引入 vuex js配置 相关数据
-import { mapGetters, mapMutations } from "vuex";
+import { mapGetters, mapMutations, mapActions } from "vuex";
 import animations from "create-keyframe-animation";
 import { prefixStyle } from "config/js/dom";
 
@@ -246,8 +246,9 @@ export default {
   },
   methods: {
     ...mapMutations([
-      "SET_FULL_SCREEN",
+      "SET_FULL_SCREEN"
     ]),
+    ...mapActions(["savePlayHistory"]),
     back() {
       //   点击显示mini播放器
       this.SET_FULL_SCREEN(false);
@@ -363,6 +364,7 @@ export default {
     },
     ready() {
       this.songReady = true;
+      this.savePlayHistory(this.currentSong);
     },
     erro() {
       // 网络错误状态或者歌曲加载失败

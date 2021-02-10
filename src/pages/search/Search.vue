@@ -6,7 +6,7 @@
     </div>
     <!-- hotkey -->
     <div class="shortcut-wrapper" v-show="!query" ref="shortcutWrapper">
-      <Scroll class="shortcut" :data="shortcut" ref="shortcut">
+      <Scroll :refreshDelay="refreshDelay" class="shortcut" :data="shortcut" ref="shortcut">
         <div>
           <div class="hot-key">
             <h1 class="title">热门搜索</h1>
@@ -75,6 +75,7 @@ export default {
     return {
       hotKey: [],
       query: "", //
+      refreshDelay: 100
     };
   },
   components: {

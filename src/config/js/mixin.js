@@ -1,5 +1,5 @@
 
-import { mapGetters, mapMutations } from "vuex"
+import { mapGetters, mapMutations, mapActions } from "vuex"
 import { playMode } from "config/common/config"
 import { shuffle } from "config/js/util";
 
@@ -68,5 +68,39 @@ export const playerMixin = {
             });
             this.SET_CURRENT_INDEX(index);
         },
+    },
+}
+
+// 搜索歌曲
+export const searchMixin = {
+    data() {
+        return {
+            query: ''
+        }
+    },
+    computed: {
+        ...mapGetters(['searchHistory']),
+    },
+    methods: {
+        ...mapActions([
+            "saveSearchHistory",
+            "deleteSearchHistory",
+            "clearSearchHistory"
+        ]),
+        blurInput() {
+            //
+            this.$refs.searchBox.blur();
+        },
+        saveSearch() {
+            // 保存搜索结果
+            this.saveSearchHistory(this.query);
+        },
+        addQuery(query) {
+            this.$refs.serchBox.setQuery(query);
+        },
+        onQueryChange(query) {
+            // 接收搜索框的query
+            this.query = query;
+        }
     },
 }

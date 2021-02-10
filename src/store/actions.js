@@ -1,7 +1,7 @@
 import * as types from './mutation-types'
 import { playMode } from 'config/common/config'
 import { shuffle } from '../config/js/util';
-import { saveSearch, deleteSearch, clearSearch } from 'config/js/cache'
+import { saveSearch, deleteSearch, clearSearch, savePlay } from 'config/js/cache'
 
 // 点击设置播放
 export const selectPlay = function ({ commit, state }, { list, index }) {
@@ -120,4 +120,9 @@ export const deleteSongList = function ({commit}) {
     commit(types.SET_SEQUENCE_LIST, []);
     commit(types.SET_CURRENT_INDEX, -1);
     commit(types.SET_PLAYING_STATE, false);
+}
+
+// 保存播放历史
+export const savePlayHistory = function({commit}, song) {
+    commit(types.SET_PLAY_HISTORY, savePlay(song));
 }

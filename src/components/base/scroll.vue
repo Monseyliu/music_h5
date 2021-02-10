@@ -34,6 +34,10 @@ export default {
     beforeScroll: {
       type: Boolean,
       default: false
+    },
+    refreshDelay:{
+      type: Number,
+      default: 20
     }
   },
   mounted() {
@@ -46,7 +50,7 @@ export default {
         //   监听数据变化刷新
           setTimeout(() => {
               this.refresh();
-          },20)
+          },this.refreshDelay)
       }
   },
   methods: {
