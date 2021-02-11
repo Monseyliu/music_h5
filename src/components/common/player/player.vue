@@ -350,6 +350,7 @@ export default {
       if (!this.songReady) return;
       if (this.playlist.length === 1) {
         this.loop();
+        return;
       } else {
         let index = this.currentIndex - 1;
         if (index === -1) {
@@ -367,6 +368,7 @@ export default {
       if (!this.songReady) return;
       if (this.playlist.length === 1) {
         this.loop();
+        return;
       } else {
         let index = this.currentIndex + 1;
         if (index === this.playlist.length) {
@@ -431,6 +433,7 @@ export default {
       this.currentSong
         .getLyric()
         .then((lyric) => {
+          if(this.currentSong.lyric !== lyric) return;
           this.currentLyric = new Lyric(lyric, this.handleLyric);
           if (this.playing) {
             this.currentLyric.play();
