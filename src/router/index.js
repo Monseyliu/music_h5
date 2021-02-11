@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 
 // 一级路由区域
 const Home = () => import(/*webpackChunkName: "home-home"*/'../pages/home/Home');
+const User = () => import(/*webpackChunkName: "user-user"*/'common/user-center/user-center');
 
 // 二级路由
 const Rank = () => import(/*webpackChunkName: "home-rank"*/'../pages/rank/Rank');
@@ -21,21 +22,31 @@ const routes = [
   { path: '/', redirect: '/home' },
   {
     path: '/home', component: Home, children: [
-      { path: '/home', redirect: '/recommend'},
-      { path: '/rank', component: Rank , children:[
-        { path: ':id', component: TopList}
-      ]},
-      { path: '/recommend', component: Recommend, children:[
-        { path: ':id', component: Disc}
-      ] },
-      { path: '/search', component: Search, children:[
-        { path: ':id', component: SingerDetail}
-      ] },
-      { path: '/singer', component: Singer, children: [
-        { path: ':id', component: SingerDetail}
-      ] },
+      { path: '/home', redirect: '/recommend' },
+      {
+        path: '/rank', component: Rank, children: [
+          { path: ':id', component: TopList }
+        ]
+      },
+      {
+        path: '/recommend', component: Recommend, children: [
+          { path: ':id', component: Disc }
+        ]
+      },
+      {
+        path: '/search', component: Search, children: [
+          { path: ':id', component: SingerDetail }
+        ]
+      },
+      {
+        path: '/singer', component: Singer, children: [
+          { path: ':id', component: SingerDetail }
+        ]
+      },
+      { path: '/user', component: User }
     ]
   },
+  
 
 ]
 

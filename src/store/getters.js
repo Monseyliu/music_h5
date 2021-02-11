@@ -16,6 +16,7 @@ export const currentSong = (state) => {
 // 歌单
 export const disc = state => state.disc;
 export const topList = state => state.topList;
-// 搜索历史 播放历史
+// 搜索历史 播放历史 收藏列表
 export const searchHistory = state => state.searchHistory;
 export const playHistory = state => state.playHistory;
+export const favoriteList = state => state.favoriteList;

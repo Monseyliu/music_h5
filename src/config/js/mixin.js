@@ -32,6 +32,7 @@ export const playlistMixin = {
 // 处理动态添加样式 及点击事件
 export const playerMixin = {
     computed: {
+        ...mapGetters(['favoriteList']),
         iconMode() {
             // 控制 播放模式
             return this.mode === playMode.sequence
@@ -48,6 +49,7 @@ export const playerMixin = {
             "SET_PLAY_MODE",
             "SET_PLAYLIST",
         ]),
+        ...mapActions(['saveFavoriteList', 'deleteFavoriteList']),
         changeMode() {
             // 更改播放模式
             const mode = (this.mode + 1) % 3;
@@ -68,6 +70,26 @@ export const playerMixin = {
             });
             this.SET_CURRENT_INDEX(index);
         },
+        // 歌词收藏处理
+        getFavoriteIcon(song) {
+            if (this.isFavorite(song)) {
+                return 'icon-favorite'
+            }
+            return 'icon-not-favorite'
+        },
+        toggleFavorite(song) {
+            if (this.isFavorite(song)) {
+                this.deleteFavoriteList(song);
+            } else {
+                this.saveFavoriteList(song);
+            }
+        },
+        isFavorite(song) {
+            const index = this.favoriteList.findIndex((item) => {
+                return item.id === song.id
+            })
+            return index > -1;
+        }
     },
 }
 

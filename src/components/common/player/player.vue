@@ -94,7 +94,7 @@
               ></i>
             </div>
             <div class="icon i-right">
-              <i class="iconfont icon-not-favorite"></i>
+              <i class="iconfont " @click="toggleFavorite(currentSong)" :class="getFavoriteIcon(currentSong)"></i>
             </div>
           </div>
         </div>
@@ -168,7 +168,7 @@ const transform = prefixStyle("transform");
 const transitionDuration = prefixStyle("transitionDuration");
 
 export default {
-  mixins: [Playlist],
+  mixins: [ playerMixin],
   name: "Player",
   data() {
     return {
@@ -488,7 +488,8 @@ export default {
     // 播放列表
     showPlaylist(){
       this.$refs.playlist.show();
-    }
+    },
+    
   },
 };
 </script>
